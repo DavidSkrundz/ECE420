@@ -20,7 +20,7 @@ int n;
 void* multiply(void* data) {
 	int rank = VOIDP2INT(data);
 	
-	int x = floor(rank / sqrtP);
+	int x = rank / sqrtP;
 	int y = rank % sqrtP;
 	
 	int minX = x * n / sqrtP;
