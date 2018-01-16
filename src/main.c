@@ -32,7 +32,7 @@ void* multiply(void* data) {
 		for (int j = minY; j <= maxY; ++j) {
 			int value = 0;
 			for (int r = 0; r < n; ++r) {
-				value += A[i][r] * B[r][j];
+				value += A[i][r] * B[j][r];
 			}
 			C[i][j] = value;
 		}
@@ -44,6 +44,15 @@ void* multiply(void* data) {
 void realMain() {
 	// Load the input
 	Lab1_loadinput(&A, &B, &n);
+	
+	// Transpose B for better locality
+	for (int i = 1; i < n; ++i) {
+		for (int j = 0; j < i; ++j) {
+			int tmp = B[i][j];
+			B[i][j] = B[j][i];
+			B[j][i] = tmp;
+		}
+	}
 	
 	// Prepare output
 	C = malloc(n * sizeof(int*));
