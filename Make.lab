@@ -1,0 +1,33 @@
+TESTEXEC := support/$(EXEC)
+MATRIXGEN := support/matrixgen
+SERIALTESTER := support/serialtester
+
+.PHONY: post-$(EXEC)
+post-$(EXEC):
+	@-$(MAKE) $(MATRIXGEN) >/dev/null
+	@-cd support && ./matrixgen
+	@-cp support/data_input ./
+
+.PHONY: test
+test: $(TESTEXEC) $(MATRIXGEN) $(SERIALTESTER)
+	@cd support && ./check.sh
+
+$(TESTEXEC): $(EXEC)
+	@cp $< $@
+
+$(MATRIXGEN):
+	@cd support && gcc matrixgen.c -o matrixgen
+
+$(SERIALTESTER):
+	@cd support && gcc serialtester.c lab1_IO.c -o serialtester
+
+.PHONY: post-clean
+post-clean:
+	@-rm -f data_input
+	@-rm -f data_output
+
+.PHONY: test-clean
+test-clean: clean
+	@-rm -f $(TESTEXEC)
+	@-rm -f $(MATRIXGEN)
+	@-rm -f $(SERIALTESTER)

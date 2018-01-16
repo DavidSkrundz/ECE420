@@ -1,0 +1,33 @@
+# Compiling
+
+`make`
+
+# Testing
+
+`make test`
+
+# Cleaning
+
+`make clean`
+`make test-clean`
+
+# Packaging
+
+###### Local:
+
+```
+make test-clean
+make push
+```
+
+###### Remote:
+
+```
+make test
+```
+
+###### Local:
+
+```
+make zip
+```
