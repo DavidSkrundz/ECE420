@@ -11,6 +11,7 @@
 
 /** Globals needed by each thread */
 int threadCount;
+int sqrtP;
 int** A;
 int** B;
 int** C;
@@ -19,7 +20,6 @@ int n;
 void* multiply(void* data) {
 	int rank = VOIDP2INT(data);
 	
-	int sqrtP = sqrt(threadCount);
 	int x = floor(rank / sqrtP);
 	int y = rank % sqrtP;
 	
@@ -42,6 +42,9 @@ void* multiply(void* data) {
 }
 
 void realMain() {
+	// Allocate threads
+	pthread_t* threads = malloc(threadCount * sizeof(pthread_t));
+	
 	// Load the input
 	Lab1_loadinput(&A, &B, &n);
 	
@@ -65,7 +68,6 @@ void realMain() {
 	GET_TIME(start);
 	
 	// Run threads
-	pthread_t* threads = malloc(threadCount * sizeof(pthread_t));
 	for (int i = 0; i < threadCount; ++i) {
 		pthread_create(&threads[i], NULL, multiply, INT2VOIDP(i));
 	}
@@ -107,6 +109,7 @@ int main(int argc, char** argv) {
 	
 	char* argv1End = NULL;
 	threadCount = (int)strtol(argv[1], &argv1End, 10);
+	sqrtP = sqrt(threadCount);
 	if (*argv1End != '\0') {
 		printf("Non-numeric argument.\n");
 		usage(argv[0]);
