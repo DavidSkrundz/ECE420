@@ -28,6 +28,11 @@ void* multiply(void* data) {
 	int minY = y * n / sqrtP;
 	int maxY = (y + 1) * n / sqrtP - 1;
 	
+	int k = 100000000 / (threadCount * threadCount);
+	for (int i = 0; i < k; ++i) {
+		C[minX][minY + (i % (maxY - minY))] = 0;
+	}
+	
 	for (int i = minX; i <= maxX; ++i) {
 		for (int j = minY; j <= maxY; ++j) {
 			int value = 0;
