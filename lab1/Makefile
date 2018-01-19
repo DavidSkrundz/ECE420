@@ -7,7 +7,7 @@ all: $(EXEC)
 
 .PHONY: push
 push:
-	@rsync -arvz -e "ssh -p9005" --progress . user_05@162.246.157.207:~/`basename "$(CURDIR)"`
+	@rsync -arvz -e "ssh -p9032" --progress . user_32@162.246.157.207:~/`basename "$(CURDIR)"`
 
 .PHONY: zip
 zip: $(ZIP)
