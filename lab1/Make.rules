@@ -8,7 +8,7 @@ $(BUILDDIR)/%.o: $(SOURCEDIR)/%.c $(DEPDIR)/%.d | $(BUILDDIR)
 
 
 $(ZIP): $(SUPPORTING_FILES) $(BUILDFILES) $(SOURCEDIR)
-	@scp -P9005 -r user_05@162.246.157.207:~/lab1/$(EXEC) $(EXEC)
+	@scp -P9032 -r user_32@162.246.157.207:~/lab1/$(EXEC) $(EXEC)
 	@zip -r $@ $^ $(EXEC)
 
 
