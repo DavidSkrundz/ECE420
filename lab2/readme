@@ -1,0 +1,17 @@
+# Compiling
+
+`make`
+
+# Testing
+
+`make test`
+
+# Cleaning
+
+`make clean`
+
+# Packaging (run locally)
+
+```
+make zip
+```

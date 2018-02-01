@@ -1,0 +1,30 @@
+$(CLIENT): $(CLIENT_OBJECTS)
+	@$(CC) $(CCFLAGS) -o $@ $^ $(LINKFLAGS)
+
+$(SERVER): $(SERVER_OBJECTS)
+	@$(CC) $(CCFLAGS) -o $@ $^ $(LINKFLAGS)
+
+$(BUILDDIR)/%.o: $(SOURCEDIR)/%.c $(DEPDIR)/%.d | $(BUILDDIR)
+	@$(CC) $(DEPFLAGS) $(CCFLAGS) -o $@ -c $<
+	@$(POSTCOMPILE)
+
+
+$(ZIP): $(SUPPORTING_FILES) $(BUILDFILES) $(SOURCEDIR)
+	@ssh -p9032 user_32@162.246.157.207 -t "rm -rf `basename "$(CURDIR)"`"
+	@rsync -arvz -e "ssh -p9032" --progress . user_32@162.246.157.207:~/`basename "$(CURDIR)"`
+	@ssh -p9032 user_32@162.246.157.207 -t "cd `basename "$(CURDIR)"`; make"
+	@scp -P9032 -r user_32@162.246.157.207:~/`basename "$(CURDIR)"`/$(CLIENT) $(CLIENT)
+	@scp -P9032 -r user_32@162.246.157.207:~/`basename "$(CURDIR)"`/$(SERVER) $(SERVER)
+	@zip -r $@ $^ $(EXEC)
+
+
+.PRECIOUS: $(DEPDIR)/%.d
+$(DEPDIR)/%.d: | $(DEPDIR)
+	@
+
+
+$(BUILDDIR):
+	@mkdir -p $@
+
+$(DEPDIR):
+	@mkdir -p $@
