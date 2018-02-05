@@ -22,6 +22,7 @@ void fixOpenFileLimit() {
 }
 
 void createSemaphore(sem_t** semaphore, char name[]) {
+	sem_unlink(name);
 	*semaphore = sem_open(name, O_CREAT, 0644, socketLimit);
 	if (*semaphore == SEM_FAILED) {
 		perror("sem_open");

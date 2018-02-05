@@ -94,13 +94,13 @@ void realMain(int port, int count) {
 		exit(EXIT_FAILURE);
 	}
 	
-	listen(serverSocket, 2000);
+	listen(serverSocket, 10000);
 	int jumpResult = sigsetjmp(jumpBuffer, 1);
 	while (jumpResult == JMP_VALUE_SET) {
 		sem_wait(connectionSemaphore);
 		int client = accept(serverSocket, NULL, NULL);
 		if (client == -1) {
-			Print("accept error: %d\n", errno);
+			perror("accept()");
 			exit(EXIT_FAILURE);
 		}
 		pthread_create(&threads[client], NULL, HandleClient, INT2VOIDP(client));

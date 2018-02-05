@@ -85,7 +85,7 @@ void realMain(int p, int c) {
 		pthread_join(threads[i], NULL);
 	}
 	GET_TIME(end);
-	printf("Time: %f\n", end - start);
+	printf("%f\n", end - start);
 	
 	destroySemaphore(connectionSemaphore, connectionSemaphoreName);
 	free(threads);
