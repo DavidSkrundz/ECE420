@@ -6,7 +6,7 @@ all: $(CLIENT) $(SERVER)
 	@
 
 .PHONY: push
-push:
+push: clean
 	@rsync -arvz -e "ssh -p9032" --progress . user_32@162.246.157.207:~/`basename "$(CURDIR)"`
 
 .PHONY: zip
@@ -22,4 +22,5 @@ clean:
 	@-rm -f $(ZIP)
 
 include Make.lab
-include $(wildcard $(patsubst $(SOURCEDIR)/%,$(DEPDIR)/%.d,$(basename $(SOURCES))))
+include $(wildcard $(patsubst $(SOURCEDIR)/%,$(DEPDIR)/%.d,$(basename $(CLIENT_SOURCES))))
+include $(wildcard $(patsubst $(SOURCEDIR)/%,$(DEPDIR)/%.d,$(basename $(SERVER_SOURCES))))

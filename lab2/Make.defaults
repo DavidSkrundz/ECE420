@@ -4,8 +4,8 @@ BUILDDIR := build
 DEPDIR := dep
 SOURCEDIR := src
 
-CLIENT_SOURCES = $(SOURCEDIR)/client.c
-SERVER_SOURCES = $(SOURCEDIR)/server.c
+CLIENT_SOURCES = $(SOURCEDIR)/client.c $(SOURCEDIR)/common.c
+SERVER_SOURCES = $(SOURCEDIR)/server.c $(SOURCEDIR)/common.c
 CLIENT_OBJECTS = $(patsubst $(SOURCEDIR)/%.c,$(BUILDDIR)/%.o,$(CLIENT_SOURCES))
 SERVER_OBJECTS = $(patsubst $(SOURCEDIR)/%.c,$(BUILDDIR)/%.o,$(SERVER_SOURCES))
 
@@ -16,7 +16,7 @@ BUILDFILES := Make.defaults Make.lab Make.rules Makefile
 SUPPORTING_FILES := readme members
 ZIP := 1389031-H42.zip
 
-CCFLAGS ?= -Wall -Werror -std=c99 -O3 -msse2 -march=native
+CCFLAGS ?= -Wall -Werror -std=c99 -O3 -msse2 -march=native -g
 LINKFLAGS := -lpthread -lm
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td

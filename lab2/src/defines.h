@@ -1,0 +1,9 @@
+#pragma once
+
+#define CLIENT_REQUESTS 200
+
+#define REQUEST_LENGTH 10
+#define RESPONSE_LENGTH 100
+
+#define JMP_VALUE_SET	0
+#define JMP_VALUE_JUMP	1
