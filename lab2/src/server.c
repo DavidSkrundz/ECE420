@@ -69,7 +69,7 @@ void *HandleClient(void *args) {
 void realMain(int port, int count) {
 	registerSIGINT();
 	
-	pthread_t threads[socketLimit];
+	pthread_t* threads = malloc(socketLimit * sizeof(pthread_t));
 	createSemaphore(&connectionSemaphore, connectionSemaphoreName);
 	pthread_mutex_init(&theArrayMutex, NULL);
 	

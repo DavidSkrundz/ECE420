@@ -12,11 +12,11 @@
 #include <string.h>
 #include <sys/resource.h>
 
-char* localhost;
-int socketLimit;
-int firstSocket;
+extern char* localhost;
+extern int socketLimit;
+extern int firstSocket;
 
-void fixOpenFileLimit();
+void fixOpenFileLimit(void);
 void createSemaphore(sem_t** semaphore, char name[]);
 void destroySemaphore(sem_t* semaphore, char name[]);
 

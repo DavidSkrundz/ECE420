@@ -111,7 +111,7 @@ void setSmallPacketMode(int socket) {
 void readBytes(int socket, char* buffer, int count) {
 	int remaining = count;
 	while (remaining > 0) {
-		int readCount = read(socket, buffer + count - remaining, remaining);
+		ssize_t readCount = read(socket, buffer + count - remaining, remaining);
 		if (readCount == -1) {
 			perror("read()");
 			exit(EXIT_FAILURE);
@@ -123,7 +123,7 @@ void readBytes(int socket, char* buffer, int count) {
 void writeBytes(int socket, const char* buffer, int count) {
 	int remaining = count;
 	while (remaining > 0) {
-		int writeCount = write(socket, buffer + count - remaining, remaining);
+		ssize_t writeCount = write(socket, buffer + count - remaining, remaining);
 		if (writeCount == -1) {
 			perror("write()");
 			exit(EXIT_FAILURE);
