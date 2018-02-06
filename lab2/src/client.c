@@ -20,7 +20,6 @@ static sem_t* connectionSemaphore;
 
 static int port;
 static int count;
-int socketLimit;
 
 void* connectToServer(void* data) {
 	int rank = VOIDP2INT(data);
@@ -44,21 +43,14 @@ void* connectToServer(void* data) {
 		perror("connect()");
 		exit(EXIT_FAILURE);
 	}
+	setSmallPacketMode(clientSocket);
 	
 	Print("Thread %d: index=%d, write=%d\n", rank, targetIndex, readWrite>=95);
 	char sendString[REQUEST_LENGTH], receiveString[RESPONSE_LENGTH];
 	char* format = readWrite >= 95 ? writeFormat : readFormat;
 	snprintf(sendString, 10, format, targetIndex);
-	int writeResult = write(clientSocket, sendString, REQUEST_LENGTH);
-	if (writeResult == -1) {
-		perror("write()");
-		exit(EXIT_FAILURE);
-	}
-	int readResult = read(clientSocket, receiveString, RESPONSE_LENGTH);
-	if (readResult == -1) {
-		perror("read()");
-		exit(EXIT_FAILURE);
-	}
+	writeBytes(clientSocket, sendString, REQUEST_LENGTH);
+	readBytes(clientSocket, receiveString, RESPONSE_LENGTH);
 	Print("Thread %d: got=%s\n", rank, receiveString);
 	if (strlen(receiveString) == 0) {
 		printf("Nothing\n");

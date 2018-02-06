@@ -1,7 +1,14 @@
 #include "common.h"
 
-extern int socketLimit;
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
+#include <unistd.h>
+
+int socketLimit;
+int firstSocket;
 char* localhost = "127.0.0.1";
+
+static int smallPacketModeFlag = 1;
 
 extern void realMain(int port, int count);
 
@@ -18,7 +25,9 @@ void fixOpenFileLimit() {
 		perror("getrlimit");
 		exit(EXIT_SUCCESS);
 	}
-	socketLimit = fileLimit.rlim_cur - 3;
+	firstSocket = socket(AF_INET, SOCK_STREAM, 0);
+	socketLimit = 10;//(fileLimit.rlim_cur - firstSocket - 1) / 2;
+	close(firstSocket);
 }
 
 void createSemaphore(sem_t** semaphore, char name[]) {
@@ -89,4 +98,36 @@ int main(int argc, char** argv) {
 	fixOpenFileLimit();
 	realMain(port, count);
 	return EXIT_SUCCESS;
+}
+
+void setSmallPacketMode(int socket) {
+	setsockopt(socket,
+			   IPPROTO_TCP,
+			   TCP_NODELAY,
+			   &smallPacketModeFlag,
+			   sizeof(smallPacketModeFlag));
+}
+
+void readBytes(int socket, char* buffer, int count) {
+	int remaining = count;
+	while (remaining > 0) {
+		int readCount = read(socket, buffer + count - remaining, remaining);
+		if (readCount == -1) {
+			perror("read()");
+			exit(EXIT_FAILURE);
+		}
+		remaining -= readCount;
+	}
+}
+
+void writeBytes(int socket, const char* buffer, int count) {
+	int remaining = count;
+	while (remaining > 0) {
+		int writeCount = write(socket, buffer + count - remaining, remaining);
+		if (writeCount == -1) {
+			perror("write()");
+			exit(EXIT_FAILURE);
+		}
+		remaining -= writeCount;
+	}
 }

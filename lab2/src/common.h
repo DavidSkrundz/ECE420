@@ -13,7 +13,13 @@
 #include <sys/resource.h>
 
 char* localhost;
+int socketLimit;
+int firstSocket;
 
 void fixOpenFileLimit();
 void createSemaphore(sem_t** semaphore, char name[]);
 void destroySemaphore(sem_t* semaphore, char name[]);
+
+void setSmallPacketMode(int socket);
+void readBytes(int socket, char* buffer, int count);
+void writeBytes(int socket, const char* buffer, int count);

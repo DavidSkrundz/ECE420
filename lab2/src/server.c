@@ -24,8 +24,6 @@ static pthread_mutex_t theArrayMutex;
 
 static sigjmp_buf jumpBuffer;
 
-int socketLimit;
-
 void catchSIGINT(int signo) {
 	siglongjmp(jumpBuffer, JMP_VALUE_JUMP);
 }
@@ -44,7 +42,7 @@ void *HandleClient(void *args) {
 	int client = VOIDP2INT(args);
 	
 	char readString[REQUEST_LENGTH];
-	read(client, readString, REQUEST_LENGTH);
+	readBytes(client, readString, REQUEST_LENGTH);
 	
 	bool writeRequest = readString[0] == 'w';
 	char* readStringEnd = NULL;
@@ -57,7 +55,7 @@ void *HandleClient(void *args) {
 		theArray[index] = realloc(theArray[index], length * sizeof(char));
 		snprintf(theArray[index], length, stringWriteFormat, index);
 	}
-	write(client, theArray[index], RESPONSE_LENGTH);
+	writeBytes(client, theArray[index], RESPONSE_LENGTH);
 	++count;
 	Print("Client %d | %d: index=%d, write=%d\n", client, count, index, writeRequest);
 	
@@ -103,7 +101,8 @@ void realMain(int port, int count) {
 			perror("accept()");
 			exit(EXIT_FAILURE);
 		}
-		pthread_create(&threads[client], NULL, HandleClient, INT2VOIDP(client));
+		setSmallPacketMode(client);
+		pthread_create(&threads[client - firstSocket], NULL, HandleClient, INT2VOIDP(client));
 	}
 	pthread_mutex_destroy(&theArrayMutex);
 	close(serverSocket);
