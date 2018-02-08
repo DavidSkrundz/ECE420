@@ -1,5 +1,7 @@
 # Compiling
 
+Modify `src/defines.h` and uncomment one of the locking methods
+
 `make`
 
 # Testing
@@ -14,4 +16,13 @@
 
 ```
 make zip
+```
+
+# Data
+
+```
+./server 3000 10
+make test > result_1_10.txt && noti
+./mm.r < result_1_10.txt
+./cdf.r < result_1_10.txt && mv Rplots.pdf plot_1_10.pdf && ./cdf.r < result_1_100.txt && mv Rplots.pdf plot_1_100.pdf && ./cdf.r < result_1_1000.txt && mv Rplots.pdf plot_1_1000.pdf && ./cdf.r < result_1_10000.txt && mv Rplots.pdf plot_1_10000.pdf && ./cdf.r < result_2_10.txt && mv Rplots.pdf plot_2_10.pdf && ./cdf.r < result_2_100.txt && mv Rplots.pdf plot_2_100.pdf && ./cdf.r < result_2_1000.txt && mv Rplots.pdf plot_2_1000.pdf && ./cdf.r < result_2_10000.txt && mv Rplots.pdf plot_2_10000.pdf && ./cdf.r < result_3_10.txt && mv Rplots.pdf plot_3_10.pdf && ./cdf.r < result_3_100.txt && mv Rplots.pdf plot_3_100.pdf && ./cdf.r < result_3_1000.txt && mv Rplots.pdf plot_3_1000.pdf && ./cdf.r < result_3_10000.txt && mv Rplots.pdf plot_3_10000.pdf && ./cdf.r < result_4_10.txt && mv Rplots.pdf plot_4_10.pdf && ./cdf.r < result_4_100.txt && mv Rplots.pdf plot_4_100.pdf && ./cdf.r < result_4_1000.txt && mv Rplots.pdf plot_4_1000.pdf && ./cdf.r < result_4_10000.txt && mv Rplots.pdf plot_4_10000.pdf
 ```

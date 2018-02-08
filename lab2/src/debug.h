@@ -1,7 +1,7 @@
 #pragma once
 
 #define DEBUG 1
-//#undef DEBUG
+#undef DEBUG
 
 /// `Print` function to remove performance penalty
 #ifdef DEBUG
