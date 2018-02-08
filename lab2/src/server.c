@@ -52,7 +52,8 @@ void *HandleClient(void *args) {
 	
 	if (writeRequest) {
 		int length = 1 + snprintf(NULL, 0, stringWriteFormat, index);
-		theArray[index] = realloc(theArray[index], length * sizeof(char));
+		free(theArray[index]);
+		theArray[index] = malloc(length * sizeof(char));
 		snprintf(theArray[index], length, stringWriteFormat, index);
 	}
 	writeBytes(client, theArray[index], RESPONSE_LENGTH);
@@ -95,16 +96,26 @@ void realMain(int port, int count) {
 	listen(serverSocket, 10000);
 	int jumpResult = sigsetjmp(jumpBuffer, 1);
 	while (jumpResult == JMP_VALUE_SET) {
-		sem_wait(connectionSemaphore);
-		int client = accept(serverSocket, NULL, NULL);
-		if (client == -1) {
-			perror("accept()");
-			exit(EXIT_FAILURE);
+		for (int i = 0; i < socketLimit; ++i) {
+			sem_wait(connectionSemaphore);
+			int client = accept(serverSocket, NULL, NULL);
+			if (client == -1) {
+				perror("accept()");
+				exit(EXIT_FAILURE);
+			}
+			setSmallPacketMode(client);
+			if (pthread_create(&threads[i], NULL, HandleClient, INT2VOIDP(client))) {
+				printf("%d\n", i);
+				perror("pthread_create()");
+				exit(EXIT_FAILURE);
+			}
 		}
-		setSmallPacketMode(client);
-		pthread_create(&threads[client - firstSocket], NULL, HandleClient, INT2VOIDP(client));
+		for (int i = 0; i < socketLimit; ++i) {
+			pthread_join(threads[i], NULL);
+		}
 	}
 	pthread_mutex_destroy(&theArrayMutex);
 	close(serverSocket);
+	free(threads);
 	Print("Server closed\n");
 }

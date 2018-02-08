@@ -1,6 +1,6 @@
 #pragma once
 
-#define CLIENT_REQUESTS 200
+#define CLIENT_REQUESTS 10000
 
 #define REQUEST_LENGTH 10
 #define RESPONSE_LENGTH 100
