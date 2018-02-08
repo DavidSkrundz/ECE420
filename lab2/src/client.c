@@ -46,11 +46,14 @@ void* connectToServer(void* data) {
 	setSmallPacketMode(clientSocket);
 	
 	Print("Thread %d: index=%d, write=%d\n", rank, targetIndex, readWrite>=95);
-	char sendString[REQUEST_LENGTH], receiveString[RESPONSE_LENGTH];
+	char sendString[REQUEST_LENGTH + 1] = {0};
+	char receiveString[RESPONSE_LENGTH + 1] = {0};
 	char* format = readWrite >= 95 ? writeFormat : readFormat;
 	snprintf(sendString, 10, format, targetIndex);
 	writeBytes(clientSocket, sendString, REQUEST_LENGTH);
+	
 	readBytes(clientSocket, receiveString, RESPONSE_LENGTH);
+	
 	Print("Thread %d: got=%s\n", rank, receiveString);
 	if (strlen(receiveString) == 0) {
 		printf("Nothing\n");

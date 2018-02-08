@@ -26,7 +26,8 @@ void fixOpenFileLimit() {
 		exit(EXIT_SUCCESS);
 	}
 	firstSocket = socket(AF_INET, SOCK_STREAM, 0);
-	socketLimit = 100;//(int)(fileLimit.rlim_cur - firstSocket - 1) / 2;
+	printf("%d\n", (int)fileLimit.rlim_cur);
+	socketLimit = (int)(fileLimit.rlim_cur - 10) / 2;
 	close(firstSocket);
 }
 

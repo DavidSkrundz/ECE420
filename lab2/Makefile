@@ -9,6 +9,10 @@ all: $(CLIENT) $(SERVER)
 push: clean
 	@rsync -arvz -e "ssh -p9032" --progress . user_32@162.246.157.207:~/`basename "$(CURDIR)"`
 
+.PHONY: push
+push2: clean
+	@rsync -arvz --progress . dskrundz@e5-05-10.ece.ualberta.ca:~/`basename "$(CURDIR)"`
+
 .PHONY: zip
 zip: $(ZIP)
 	@

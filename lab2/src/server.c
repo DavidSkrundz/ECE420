@@ -2,6 +2,7 @@
 #include "common.h"
 #include "debug.h"
 #include "defines.h"
+#include "rwlock.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -20,7 +21,24 @@ static char connectionSemaphoreName[] = "/420.server.connection";
 static sem_t* connectionSemaphore;
 
 static char** theArray;
-static pthread_mutex_t theArrayMutex;
+
+//#define FULL_MUTEX 1
+//#define PER_STR_MUTEX 1
+//#define FULL_RWLOCK 1
+#define PER_STR_RWLOCK 1
+
+#ifdef FULL_MUTEX
+	static pthread_mutex_t theArrayMutex;
+#endif
+#ifdef PER_STR_MUTEX
+	static pthread_mutex_t* theArrayMutexes;
+#endif
+#ifdef FULL_RWLOCK
+	static rwlock_t theArrayLock;
+#endif
+#ifdef PER_STR_RWLOCK
+	static rwlock_t* theArrayLocks;
+#endif
 
 static sigjmp_buf jumpBuffer;
 
@@ -48,19 +66,53 @@ void *HandleClient(void *args) {
 	char* readStringEnd = NULL;
 	int index = (int)strtol(readString+1, &readStringEnd, 10);
 	
-	pthread_mutex_lock(&theArrayMutex);
+	#ifdef FULL_MUTEX
+		pthread_mutex_lock(&theArrayMutex);
+	#endif
+	#ifdef PER_STR_MUTEX
+		pthread_mutex_lock(&theArrayMutexes[index]);
+	#endif
 	
 	if (writeRequest) {
 		int length = 1 + snprintf(NULL, 0, stringWriteFormat, index);
+		#ifdef FULL_RWLOCK
+			rwlock_wlock(&theArrayLock);
+		#endif
+		#ifdef PER_STR_RWLOCK
+			rwlock_wlock(&theArrayLocks[index]);
+		#endif
 		free(theArray[index]);
 		theArray[index] = malloc(length * sizeof(char));
 		snprintf(theArray[index], length, stringWriteFormat, index);
+		#ifdef FULL_RWLOCK
+			rwlock_unlock(&theArrayLock);
+		#endif
+		#ifdef PER_STR_RWLOCK
+			rwlock_unlock(&theArrayLocks[index]);
+		#endif
 	}
+	#ifdef FULL_RWLOCK
+		rwlock_rlock(&theArrayLock);
+	#endif
+	#ifdef PER_STR_RWLOCK
+		rwlock_rlock(&theArrayLocks[index]);
+	#endif
 	writeBytes(client, theArray[index], RESPONSE_LENGTH);
 	++count;
 	Print("Client %d | %d: index=%d, write=%d\n", client, count, index, writeRequest);
 	
-	pthread_mutex_unlock(&theArrayMutex);
+	#ifdef FULL_MUTEX
+		pthread_mutex_unlock(&theArrayMutex);
+	#endif
+	#ifdef PER_STR_MUTEX
+		pthread_mutex_unlock(&theArrayMutexes[index]);
+	#endif
+	#ifdef FULL_RWLOCK
+		rwlock_unlock(&theArrayLock);
+	#endif
+	#ifdef PER_STR_RWLOCK
+		rwlock_unlock(&theArrayLocks[index]);
+	#endif
 	
 	close(client);
 	sem_post(connectionSemaphore);
@@ -72,7 +124,25 @@ void realMain(int port, int count) {
 	
 	pthread_t* threads = malloc(socketLimit * sizeof(pthread_t));
 	createSemaphore(&connectionSemaphore, connectionSemaphoreName);
-	pthread_mutex_init(&theArrayMutex, NULL);
+	
+	#ifdef FULL_MUTEX
+		pthread_mutex_init(&theArrayMutex, NULL);
+	#endif
+	#ifdef PER_STR_MUTEX
+		theArrayMutexes = malloc(count * sizeof(pthread_mutex_t));
+		for (int i = 0; i < count; ++i) {
+			pthread_mutex_init(&theArrayMutexes[i], NULL);
+		}
+	#endif
+	#ifdef FULL_RWLOCK
+		rwlock_init(&theArrayLock);
+	#endif
+	#ifdef PER_STR_RWLOCK
+		theArrayLocks = malloc(count * sizeof(rwlock_t));
+		for (int i = 0; i < count; ++i) {
+			rwlock_init(&theArrayLocks[i]);
+		}
+	#endif
 	
 	theArray = malloc(count * sizeof(char*));
 	for (int i = 0; i < count; ++i) {
@@ -114,7 +184,20 @@ void realMain(int port, int count) {
 			pthread_join(threads[i], NULL);
 		}
 	}
-	pthread_mutex_destroy(&theArrayMutex);
+	#ifdef FULL_MUTEX
+		pthread_mutex_destroy(&theArrayMutex);
+	#endif
+	#ifdef PER_STR_MUTEX
+		for (int i = 0; i < count; ++i) {
+			pthread_mutex_destroy(&theArrayMutexes[i]);
+		}
+		free(theArrayMutexes);
+	#endif
+	#ifdef FULL_RWLOCK
+	#endif
+	#ifdef PER_STR_RWLOCK
+		free(theArrayLocks);
+	#endif
 	close(serverSocket);
 	free(threads);
 	Print("Server closed\n");

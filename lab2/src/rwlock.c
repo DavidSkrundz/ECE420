@@ -1,13 +1,13 @@
 #include "rwlock.h"
 
-void mylib_rwlock_init (mylib_rwlock_t *l) {
+void rwlock_init(rwlock_t *l) {
     l -> readers = l -> writer = l -> pending_writers = 0;
     pthread_mutex_init(&(l -> read_write_lock), NULL);
     pthread_cond_init(&(l -> readers_proceed), NULL);
     pthread_cond_init(&(l -> writer_proceed), NULL);
 }
 
-void mylib_rwlock_rlock(mylib_rwlock_t *l) {
+void rwlock_rlock(rwlock_t *l) {
     pthread_mutex_lock(&(l -> read_write_lock));
     while ((l -> pending_writers > 0) || (l -> writer > 0)) {
         pthread_cond_wait(&(l -> readers_proceed), &(l -> read_write_lock));
@@ -17,7 +17,7 @@ void mylib_rwlock_rlock(mylib_rwlock_t *l) {
     pthread_mutex_unlock(&(l -> read_write_lock));
 }
 
-void mylib_rwlock_wlock(mylib_rwlock_t *l) {
+void rwlock_wlock(rwlock_t *l) {
     pthread_mutex_lock(&(l -> read_write_lock));
     while ((l -> writer > 0) || (l -> readers > 0)) {
         l -> pending_writers ++;
@@ -29,7 +29,7 @@ void mylib_rwlock_wlock(mylib_rwlock_t *l) {
     pthread_mutex_unlock(&(l -> read_write_lock));
 }
 
-void mylib_rwlock_unlock(mylib_rwlock_t *l) {
+void rwlock_unlock(rwlock_t *l) {
     pthread_mutex_lock(&(l -> read_write_lock));
 
     if (l -> writer > 0) {

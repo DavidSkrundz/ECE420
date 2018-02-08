@@ -4,8 +4,8 @@ BUILDDIR := build
 DEPDIR := dep
 SOURCEDIR := src
 
-CLIENT_SOURCES = $(SOURCEDIR)/client.c $(SOURCEDIR)/common.c
-SERVER_SOURCES = $(SOURCEDIR)/server.c $(SOURCEDIR)/common.c
+CLIENT_SOURCES = $(SOURCEDIR)/client.c $(SOURCEDIR)/common.c $(SOURCEDIR)/rwlock.c
+SERVER_SOURCES = $(SOURCEDIR)/server.c $(SOURCEDIR)/common.c $(SOURCEDIR)/rwlock.c
 CLIENT_OBJECTS = $(patsubst $(SOURCEDIR)/%.c,$(BUILDDIR)/%.o,$(CLIENT_SOURCES))
 SERVER_OBJECTS = $(patsubst $(SOURCEDIR)/%.c,$(BUILDDIR)/%.o,$(SERVER_SOURCES))
 
