@@ -1,0 +1,24 @@
+$(EXEC): $(OBJECTS)
+	@$(CC) $(CCFLAGS) -o $@ $^ $(LINKFLAGS)
+	@$(MAKE) post-$(EXEC)
+
+$(BUILDDIR)/%.o: $(SOURCEDIR)/%.c $(DEPDIR)/%.d | $(BUILDDIR)
+	@$(CC) $(DEPFLAGS) $(CCFLAGS) -o $@ -c $<
+	@$(POSTCOMPILE)
+
+
+$(ZIP): $(SUPPORTING_FILES) $(BUILDFILES) $(SOURCEDIR)
+	@scp -P9032 -r user_32@162.246.157.207:~/lab3/$(EXEC) $(EXEC)
+	@zip -r $@ $^ $(EXEC)
+
+
+.PRECIOUS: $(DEPDIR)/%.d
+$(DEPDIR)/%.d: | $(DEPDIR)
+	@
+
+
+$(BUILDDIR):
+	@mkdir -p $@
+
+$(DEPDIR):
+	@mkdir -p $@

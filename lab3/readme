@@ -1,0 +1,34 @@
+# Compiling
+
+`make`
+
+`make CC=gcc-7`
+
+# Testing
+
+`make test`
+
+# Cleaning
+
+`make clean`
+`make test-clean`
+
+# Packaging
+
+###### Local:
+
+```
+make push
+```
+
+###### Remote:
+
+```
+make test
+```
+
+###### Local:
+
+```
+make zip
+```
