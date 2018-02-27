@@ -63,10 +63,11 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
-	}
-	/* solution */
-	for (int k=0; k < size; ++k) {
-		X[k] = Au[k][size] / Au[k][k];
+		/* solution */
+#		pragma omp for schedule(static)
+		for (int k=0; k < size; ++k) {
+			X[k] = Au[k][size] / Au[k][k];
+		}
 	}
 	GET_TIME(end);
 	
