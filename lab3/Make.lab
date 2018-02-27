@@ -5,7 +5,7 @@ SERIALTESTER := support/serialtester
 .PHONY: post-$(EXEC)
 post-$(EXEC):
 	@-$(MAKE) $(DATAGEN) >/dev/null
-	@-cd support && ./datagen
+	@-cd support && ./datagen -s 480
 	@-cp support/data_input ./
 
 .PHONY: test
