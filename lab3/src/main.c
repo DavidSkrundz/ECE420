@@ -6,85 +6,74 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[]) {
-	
 	int size;
 	double** Au;
 	double* X;
-	int* index;
 	double start, end;
 	
-	if (argc <= 1) {
-		printf("Insufficient input!\n");
-		return 1;
-	}
+	if (argc <= 1) { printf("Insufficient input!\n"); exit(1); }
 	int thread_count = strtol(argv[1], NULL, 10);
 	
-	/*Calculate the solution by serial code*/
 	Lab3LoadInput(&Au, &size);
 	X = CreateVec(size);
-	index = malloc(size * sizeof(int));
-	for (int i = 0; i < size; ++i) {
-		index[i] = i;
-	}
 	
 	GET_TIME(start);
-	if (size == 1) {
-		X[0] = Au[0][1] / Au[0][0];
-	} else {
+	if (size > 1) {
 #		pragma omp parallel num_threads(thread_count)
 		{
-			/*Gaussian elimination*/
+			/* Gaussian elimination */
 			for (int k = 0; k < size - 1; ++k) {
 #				pragma omp single
 				{
-					/*Pivoting*/
+					/* Pivoting */
 					double temp = 0;
 					int j = 0;
 					for (int i = k; i < size; ++i) {
-						if (temp < Au[index[i]][k] * Au[index[i]][k]) {
-							temp = Au[index[i]][k] * Au[index[i]][k];
+						if (temp < Au[i][k] * Au[i][k]) {
+							temp = Au[i][k] * Au[i][k];
 							j = i;
 						}
 					}
-					if (j != k) /*swap*/ {
-						int i = index[j];
-						index[j] = index[k];
-						index[k] = i;
+					/* swap */
+					if (j != k) {
+						double* i = Au[j];
+						Au[j] = Au[k];
+						Au[k] = i;
 					}
 				}
-				/*calculating*/
+				/* calculating */
 #				pragma omp for schedule(static)
 				for (int i = k + 1; i < size; ++i) {
-					double temp = Au[index[i]][k] / Au[index[k]][k];
+					double temp = Au[i][k] / Au[k][k];
 					for (int j = k; j < size + 1; ++j) {
-						Au[index[i]][j] -= Au[index[k]][j] * temp;
+						Au[i][j] -= Au[k][j] * temp;
 					}
 				}
 			}
 			
 #			pragma omp barrier
 			
-			/*Jordan elimination*/
+			/* Jordan elimination */
 			for (int k = size - 1; k > 0; --k) {
 #				pragma omp for schedule(static)
 				for (int i = k - 1; i >= 0; --i) {
-					double temp = Au[index[i]][k] / Au[index[k]][k];
-					Au[index[i]][k] -= temp * Au[index[k]][k];
-					Au[index[i]][size] -= temp * Au[index[k]][size];
+					double temp = Au[i][k] / Au[k][k];
+					Au[i][k] -= temp * Au[k][k];
+					Au[i][size] -= temp * Au[k][size];
 				}
 			}
 		}
-		/*solution*/
-		for (int k=0; k < size; ++k) {
-			X[k] = Au[index[k]][size] / Au[index[k]][k];
-		}
+	}
+	/* solution */
+	for (int k=0; k < size; ++k) {
+		X[k] = Au[k][size] / Au[k][k];
 	}
 	GET_TIME(end);
+	
 	Lab3SaveOutput(X, size, end - start);
 	printf("%f\n", end - start);
 	
 	DestroyVec(X);
 	DestroyMat(Au, size);
-	free(index);
 	return 0;
 }
