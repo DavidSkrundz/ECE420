@@ -1,0 +1,21 @@
+BUILDDIR := build
+DEPDIR := dep
+SOURCEDIR := src
+
+HEADERS = $(wildcard $(SOURCEDIR)/*.h)
+SOURCES = $(wildcard $(SOURCEDIR)/*.c)
+OBJECTS = $(patsubst $(SOURCEDIR)/%.c,$(BUILDDIR)/%.o,$(SOURCES))
+
+EXEC := main
+
+CC := mpicc
+
+BUILDFILES := Make.defaults Make.lab Make.rules Makefile
+SUPPORTING_FILES := readme members
+ZIP := 1389031-H42.zip
+
+CCFLAGS ?= -Wall -Werror -std=c99 -Ofast -msse2 -march=native
+LINKFLAGS := -lpthread -lm
+
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
+POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@

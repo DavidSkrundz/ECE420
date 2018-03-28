@@ -1,0 +1,35 @@
+TESTEXEC := support/$(EXEC)
+DATAGEN := support/datatrim
+SERIALTESTER := support/serialtester
+
+.PHONY: post-$(EXEC)
+post-$(EXEC):
+	@-$(MAKE) $(DATAGEN) >/dev/null
+	@-cd support && ./datatrim
+	@-cp support/data_input ./
+
+.PHONY: test
+test: $(TESTEXEC) $(DATAGEN) $(SERIALTESTER)
+	@cd support && ./check.sh
+
+$(TESTEXEC): $(EXEC)
+	@cp $< $@
+
+$(DATAGEN):
+	@cd support && $(CC) datatrim.c Lab4_IO.c -o datatrim
+
+$(SERIALTESTER):
+	@cd support && $(CC) serialtester.c Lab4_IO.c -o serialtester -lm
+
+.PHONY: post-clean
+post-clean:
+	@-rm -f data_input
+	@-rm -f data_output
+	@-rm -f support/data_input
+	@-rm -rf main.dSYM
+
+.PHONY: test-clean
+test-clean: clean
+	@-rm -f $(TESTEXEC)
+	@-rm -f $(DATAGEN)
+	@-rm -f $(SERIALTESTER)
