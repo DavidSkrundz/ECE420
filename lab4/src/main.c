@@ -21,19 +21,8 @@ int main(int argc, char* argv[]){
 	int* in_links;
 	int* out_links;
 	struct node* nodehead;
-//	if (rank == 0) {
-		get_node_stat(&nodes, &in_links, &out_links);
-//	}
 	
-//	MPI_Bcast(&nodes, 1, MPI_INT, 0, MPI_COMM_WORLD);
-	
-//	if (rank != 0) {
-//		in_links = malloc(nodes * sizeof(int));
-//		out_links = malloc(nodes * sizeof(int));
-//	}
-//
-//	MPI_Bcast(in_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
-//	MPI_Bcast(out_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
+	get_node_stat(&nodes, &in_links, &out_links);
 	
 	int per_thread = nodes / coms;
 	int index = rank * per_thread;
