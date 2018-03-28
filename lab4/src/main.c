@@ -58,6 +58,7 @@ int main(int argc, char* argv[]){
 	if (rank == 0) {
 		GET_TIME(end);
 		Lab4_saveoutput(new_ranks, nodes, end - start);
+		printf("%f\n", end - start);
 	}
 	MPI_Finalize();
 	return 0;
