@@ -19,7 +19,7 @@ $(DATAGEN):
 	@cd support && gcc datagen.c Lab3IO.c -o datagen
 
 $(SERIALTESTER):
-	@cd support && gcc serialtester.c Lab3IO.c -o serialtester
+	@cd support && gcc serialtester.c Lab3IO.c -o serialtester -lm
 
 .PHONY: post-clean
 post-clean:
