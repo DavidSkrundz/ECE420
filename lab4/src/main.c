@@ -21,23 +21,27 @@ int main(int argc, char* argv[]){
 	int* in_links;
 	int* out_links;
 	struct node* nodehead;
-	if (rank == 0) {
+//	if (rank == 0) {
 		get_node_stat(&nodes, &in_links, &out_links);
-	}
+//	}
 	
-	MPI_Bcast(&nodes, 1, MPI_INT, 0, MPI_COMM_WORLD);
+//	MPI_Bcast(&nodes, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	
-	if (rank != 0) {
-		in_links = malloc(nodes * sizeof(int));
-		out_links = malloc(nodes * sizeof(int));
-	}
+//	if (rank != 0) {
+//		in_links = malloc(nodes * sizeof(int));
+//		out_links = malloc(nodes * sizeof(int));
+//	}
+//
+//	MPI_Bcast(in_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
+//	MPI_Bcast(out_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
 	
-	MPI_Bcast(in_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
-	MPI_Bcast(out_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
+	int per_thread = nodes / coms;
+	int index = rank * per_thread;
+	int nextIndex = (rank + 1) * per_thread;
 	
 	double *ranks = malloc(nodes * sizeof(double));
 	double *new_ranks = malloc(nodes * sizeof(double));
-	double *tmp = malloc(nodes * sizeof(double));
+	double *local = malloc(per_thread * sizeof(double));
 	
 	node_init(&nodehead, in_links, out_links, 0, nodes);
 	
@@ -49,21 +53,17 @@ int main(int argc, char* argv[]){
 		new_ranks[i] = _n;
 	}
 	
-	int per_thread = nodes / coms;
-	int index = rank * per_thread;
-	int nextIndex = (rank + 1) * per_thread;
 	do {
+		vec_cp(new_ranks, ranks, nodes);
 		for (int i = index; i < nextIndex; ++i) {
-			ranks[i] = new_ranks[i];
-			new_ranks[i] = 0;
+			local[i-index] = 0;
 			for (int j = 0; j < nodehead[i].num_in_links; ++j) {
-				new_ranks[i] += ranks[nodehead[i].inlinks[j]] / out_links[nodehead[i].inlinks[j]];
+				local[i-index] += ranks[nodehead[i].inlinks[j]] / out_links[nodehead[i].inlinks[j]];
 			}
-			new_ranks[i] *= 0.85;
-			new_ranks[i] += (1.0 - 0.85) * _n;
+			local[i-index] *= 0.85;
+			local[i-index] += (1.0 - 0.85) * _n;
 		}
-		MPI_Allgather(new_ranks, per_thread, MPI_DOUBLE, tmp, per_thread, MPI_DOUBLE, MPI_COMM_WORLD);
-		memcpy(new_ranks, tmp, nodes);
+		MPI_Allgather(local, per_thread, MPI_DOUBLE, new_ranks, per_thread, MPI_DOUBLE, MPI_COMM_WORLD);
 	} while (rel_error(new_ranks, ranks, nodes) >= e);
 	
 	if (rank == 0) {
