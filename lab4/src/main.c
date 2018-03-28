@@ -17,18 +17,21 @@ int main(int argc, char* argv[]){
 	MPI_Comm_size(MPI_COMM_WORLD, &coms);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	
-	int nodes;
+	int nodes = 0;
 	int* in_links;
 	int* out_links;
-	struct node *nodehead;
+	struct node* nodehead;
 	if (rank == 0) {
 		get_node_stat(&nodes, &in_links, &out_links);
-	} else {
+	}
+	
+	MPI_Bcast(&nodes, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	
+	if (rank != 0) {
 		in_links = malloc(nodes * sizeof(int));
 		out_links = malloc(nodes * sizeof(int));
 	}
 	
-	MPI_Bcast(&nodes, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	MPI_Bcast(in_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
 	MPI_Bcast(out_links, nodes, MPI_INT, 0, MPI_COMM_WORLD);
 	
