@@ -16,7 +16,7 @@ $(TESTEXEC): $(EXEC)
 	@cp $< $@
 
 $(DATAGEN):
-	@cd support && $(CC) datatrim.c Lab4_IO.c -o datatrim
+	@cd support && $(CC) datatrim.c Lab4_IO.c -o datatrim -lm
 
 $(SERIALTESTER):
 	@cd support && $(CC) serialtester.c Lab4_IO.c -o serialtester -lm

@@ -14,7 +14,7 @@ BUILDFILES := Make.defaults Make.lab Make.rules Makefile
 SUPPORTING_FILES := readme members
 ZIP := 1389031-H42.zip
 
-CCFLAGS ?= -Wall -Werror -std=c99 -Ofast -msse2 -march=native
+CCFLAGS ?= -Wall -Werror -std=c99 -Ofast -msse2 -march=native -lm
 LINKFLAGS := -lpthread -lm
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
